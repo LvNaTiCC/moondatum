@@ -15,6 +15,13 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#include <chrono>
+#include <thread>
+
+// Define the desired frame rate (e.g., 60 FPS)
+const int desiredFPS = 60;
+const int frameDuration = 1000 / desiredFPS; // in milliseconds
+
 
 bool LoadTextureFromFile(const char* filename, GLuint* out_texture, int* out_width, int* out_height);
 
@@ -69,7 +76,6 @@ int main(int, char**)
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Main loop
-
     int my_image_width = 0;
     int my_image_height = 0;
     GLuint my_image_texture = 0;
@@ -77,6 +83,7 @@ int main(int, char**)
     IM_ASSERT(ret);
     while (!glfwWindowShouldClose(window))
     {
+        auto frameStart = std::chrono::high_resolution_clock::now();
         glfwPollEvents();
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -109,8 +116,27 @@ int main(int, char**)
                 printf("Error: %s\n", NFD_GetError() );
             }
         }
+        float aspect_ratio = float(my_image_width)/float(my_image_height);
+
+
+        ImVec2 windowSize = ImGui::GetWindowSize();
+        ImVec2 imageSize;
+        if (windowSize.x / aspect_ratio <= windowSize.y)
+        {
+            imageSize.x = windowSize.x;
+            imageSize.y = windowSize.x / aspect_ratio;
+        } else {
+            imageSize.x = windowSize.y * aspect_ratio;
+            imageSize.y = windowSize.y;
+        }
+        imageSize.x = imageSize.x * 0.9f;
+        imageSize.y = imageSize.y * 0.9f;
+        ImVec2 position;
+        position.x = (windowSize.x - imageSize.x) / 2.0f;
+        position.y = (windowSize.y - imageSize.y) / 2.0f;
+        ImGui::SetCursorPos(position);
+        ImGui::Image((void*)(intptr_t)my_image_texture, imageSize);
         ImGui::Text("Dimensions: %d x %d", my_image_width, my_image_height);
-        ImGui::Image((void*)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height));
         ImGui::End();
 
         // Rendering
@@ -134,6 +160,14 @@ int main(int, char**)
         }
 
         glfwSwapBuffers(window);
+
+        // Measure frame time and sleep to limit frame rate
+        auto frameEnd = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<float, std::milli> frameTime = frameEnd - frameStart;
+        if (frameTime.count() < frameDuration)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(frameDuration) - frameTime);
+        }
     }
 
     // Cleanup
