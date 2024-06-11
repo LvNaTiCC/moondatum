@@ -2,11 +2,15 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>
+#include <filesystem>
+#include <iostream>
+#include <vector>
 #define GL_SILENCE_DEPRECATION
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
 #endif
-#include <GLFW/glfw3.h> // Will drag system OpenGL headers
+#include "glad/glad.h"
+#include "GLFW/glfw3.h" // Will drag system OpenGL headers
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
@@ -17,6 +21,8 @@
 
 #include <chrono>
 #include <thread>
+
+namespace fs = std::filesystem;
 
 // Define the desired frame rate (e.g., 60 FPS)
 const int desiredFPS = 60;
@@ -30,6 +36,21 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "GLFW Error %d: %s/n", error, description);
 }
 
+std::vector<std::string> GetAllPngFiles(const std::string& folderPath) {
+    std::vector<std::string> pngFiles;
+
+    for (const auto& entry : fs::directory_iterator(folderPath)) {
+        if (entry.is_regular_file() && (entry.path().extension() == ".png" || entry.path().extension() == ".jpg" || entry.path().extension() == ".jpeg")) {
+            pngFiles.push_back(entry.path().string());
+        }
+    }
+
+    return pngFiles;
+}
+
+bool next_image_lock = false;
+bool prev_image_lock = false;
+
 // Main code
 int main(int, char**)
 {
@@ -41,20 +62,26 @@ int main(int, char**)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-
     GLFWwindow* window = glfwCreateWindow(1280, 720, "Moondatum", nullptr, nullptr);
     if (window == nullptr)
         return 1;
     glfwMakeContextCurrent(window);
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return -1;
+    }
+
     glfwSwapInterval(1); // Enable vsync
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
+    //glfwHideWindow(window);
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
@@ -62,24 +89,27 @@ int main(int, char**)
     ImGuiStyle& style = ImGui::GetStyle();
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
-        style.WindowRounding = 0.0f;
+        style.WindowRounding = 20.0f;
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
 
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
-
     ImGui_ImplOpenGL3_Init(glsl_version);
 
 
     // Our state
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+    
     // Main loop
     int my_image_width = 0;
     int my_image_height = 0;
     GLuint my_image_texture = 0;
-    bool ret = LoadTextureFromFile("E:/images/vscbg/icons/__hatsune_miku_vocaloid_drawn_by_rrrssr__b1666488558d076a70d9fa5ed989bfc9.png", &my_image_texture, &my_image_width, &my_image_height);
+    size_t currentIndex = 0;
+    std::string folderPath = "E:/datadump/ml_datasets/sd/v1v404/cumulative";
+    std::vector<std::string> pngFiles = GetAllPngFiles(folderPath);
+    bool ret = LoadTextureFromFile(pngFiles[currentIndex].c_str(), &my_image_texture, &my_image_width, &my_image_height);
     IM_ASSERT(ret);
     while (!glfwWindowShouldClose(window))
     {
@@ -88,6 +118,28 @@ int main(int, char**)
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+        ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
+        ImGuiIO& io = ImGui::GetIO();
+        if (io.KeysDown[ImGuiKey_RightArrow]) {
+            if (!next_image_lock) {
+                currentIndex = (currentIndex + 1) % pngFiles.size();
+                ret = LoadTextureFromFile(pngFiles[currentIndex].c_str(), &my_image_texture, &my_image_width, &my_image_height);
+                next_image_lock = true;
+            }
+        }
+        else {
+            next_image_lock = false;
+        }
+        if (io.KeysDown[ImGuiKey_LeftArrow]) {
+            if (!prev_image_lock) {
+                currentIndex = (currentIndex - 1) % pngFiles.size();
+                ret = LoadTextureFromFile(pngFiles[currentIndex].c_str(), &my_image_texture, &my_image_width, &my_image_height);
+                prev_image_lock = true;
+            }
+        }
+        else {
+            prev_image_lock = false;
+        }
 
 
         #if 1
@@ -96,14 +148,17 @@ int main(int, char**)
         #endif
 
         ImGui::Begin("OpenGL Texture Text", nullptr);
-        if (ImGui::Button("Change Image"))
+        if (ImGui::Button("Change Image Folder"))
         {
             nfdchar_t *outPath = NULL;
-            nfdresult_t result = NFD_OpenDialog( NULL, NULL, &outPath );
+            nfdresult_t result = NFD_PickFolder( NULL, &outPath );
                 
             if ( result == NFD_OKAY ) {
                 puts("Success!");
-                ret = LoadTextureFromFile(outPath, &my_image_texture, &my_image_width, &my_image_height);
+                std::string folderPath = outPath;
+                pngFiles = GetAllPngFiles(folderPath);
+                currentIndex = 0;
+                ret = LoadTextureFromFile(pngFiles[currentIndex].c_str(), &my_image_texture, &my_image_width, &my_image_height);
                 IM_ASSERT(ret);
                 puts(outPath);
                 free(outPath);
@@ -191,21 +246,24 @@ bool LoadTextureFromFile(const char* filename, GLuint* out_texture, int* out_wid
     if (image_data == NULL)
         return false;
 
-    // Create a OpenGL texture identifier
+    // Create an OpenGL texture identifier
     GLuint image_texture;
     glGenTextures(1, &image_texture);
     glBindTexture(GL_TEXTURE_2D, image_texture);
-
-    // Setup filtering parameters for display
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
 
     // Upload pixels into texture
 #if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 #endif
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
+
+    // Generate mipmaps
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    // Setup filtering parameters for display
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
     stbi_image_free(image_data);
 
     *out_texture = image_texture;
