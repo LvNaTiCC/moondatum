@@ -20,7 +20,6 @@
 
 #include "ImageViewer.h"
 
-namespace fs = std::filesystem;
 
 // Define the desired frame rate (e.g., 60 FPS)
 const int desiredFPS = 60;
@@ -34,20 +33,6 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "GLFW Error %d: %s/n", error, description);
 }
 
-std::vector<std::string> GetAllPngFiles(const std::string& folderPath) {
-    std::vector<std::string> pngFiles;
-
-    for (const auto& entry : fs::directory_iterator(folderPath)) {
-        if (entry.is_regular_file() && (entry.path().extension() == ".png" || entry.path().extension() == ".jpg" || entry.path().extension() == ".jpeg")) {
-            pngFiles.push_back(entry.path().string());
-        }
-    }
-
-    return pngFiles;
-}
-
-bool next_image_lock = false;
-bool prev_image_lock = false;
 
 // Main code
 int main(int, char**)
@@ -79,7 +64,6 @@ int main(int, char**)
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
-    //glfwHideWindow(window);
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
@@ -97,7 +81,7 @@ int main(int, char**)
 
 
     // Our state
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    ImVec4 clear_color = ImVec4(0.25f, 0.25f, 0.30f, 1.00f);
 
     
     // Main loop

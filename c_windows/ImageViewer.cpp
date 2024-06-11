@@ -10,6 +10,7 @@
 namespace fs = std::filesystem;
 
 void getAllImageFiles(const std::string_view folderPath, std::vector<std::string>& imageFiles) {
+    imageFiles.clear();
     for (const auto& entry : fs::directory_iterator(folderPath)) {
         if (entry.is_regular_file() && (entry.path().extension() == ".png" || entry.path().extension() == ".jpeg" || entry.path().extension() == ".jpg")) {
             //std::cout << "ADDED " << entry.path().string() << "\n"; debug print
@@ -55,7 +56,7 @@ void ImageViewer::Update() {
 }
 
 void ImageViewer::Render() {
-    ImGui::Begin("OpenGL Texture Text", nullptr);
+    ImGui::Begin("Image Viewer", nullptr);
 
     ImGui::Text("Image: %s", !imageFiles.empty() ? imageFiles[currentFolderPosition].c_str() : "No Image");
     ImGui::Text("Dimensions: %d x %d", currentImageWidth, currentImageHeight);
@@ -65,9 +66,9 @@ void ImageViewer::Render() {
         nfdresult_t result = NFD_PickFolder(NULL, &outPath);
 
         if (result == NFD_OKAY) {
-            std::string folderPath = outPath;
-            getAllImageFiles(folderPath, imageFiles);
+            getAllImageFiles(outPath, imageFiles);
             currentFolderPosition = 0;
+            LoadTextureFromFile(imageFiles[currentFolderPosition].c_str(), &currentImageTexture, &currentImageWidth, &currentImageHeight);
             free(outPath);
         } else if (result == NFD_CANCEL) {
             return;
