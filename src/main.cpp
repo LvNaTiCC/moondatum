@@ -34,6 +34,36 @@ static void glfw_error_callback(int error, const char* description)
 }
 
 
+void UpdateWindowPos(GLFWwindow* window, ImGuiIO& io)
+{
+    static bool dragging = false;
+    static ImVec2 dragOffset;
+
+    if (ImGui::IsMouseDragging(ImGuiMouseButton_Left))
+    {
+        ImVec2 mousePos = ImGui::GetMousePos();
+        if (!dragging)
+        {
+            int windowX, windowY;
+            glfwGetWindowPos(window, &windowX, &windowY);
+
+            dragOffset.x = mousePos.x - windowX;
+            dragOffset.y = mousePos.y - windowY;
+            std::cout << dragOffset.x;
+            std::cout << dragOffset.y;
+            dragging = true;
+        }
+
+        int newX = static_cast<int>(mousePos.x - dragOffset.x);
+        int newY = static_cast<int>(mousePos.y - dragOffset.y);
+        glfwSetWindowPos(window, newX, newY);
+    }
+    else
+    {
+        dragging = false;
+    }
+}
+
 // Main code
 int main(int, char**)
 {
@@ -44,6 +74,7 @@ int main(int, char**)
     const char* glsl_version = "#version 130";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE); // Create a borderless window
 
     GLFWwindow* window = glfwCreateWindow(1280, 720, "Moondatum", nullptr, nullptr);
     if (window == nullptr)
@@ -83,10 +114,11 @@ int main(int, char**)
     // Our state
     ImVec4 clear_color = ImVec4(0.25f, 0.25f, 0.30f, 1.00f);
 
-    
+
     // Main loop
+    static bool showImageViewport = true;
     std::string folderPath = "E:/datadump/ml_datasets/sd/v1v404/cumulative";
-    ImageViewer imageWindow(folderPath);
+    ImageViewer imageWindow(folderPath, showImageViewport);
     while (!glfwWindowShouldClose(window))
     {
         auto frameStart = std::chrono::high_resolution_clock::now();
@@ -96,15 +128,49 @@ int main(int, char**)
         ImGui::NewFrame();
         ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 
-        #if 1
+        #if 0
             bool show_demo_window = true;
             ImGui::ShowDemoWindow(&show_demo_window);
         #endif
 
-        imageWindow.Update();
-        imageWindow.Render();
+        // Temporarily disabled imageWindow
+        if (showImageViewport) {
+            imageWindow.Update();
+            imageWindow.Render();
+        }
+    
 
-        // Rendering
+        // Toolbar
+        if (ImGui::BeginMainMenuBar()) {
+            if (ImGui::IsMouseDragging(ImGuiMouseButton_Left) && ImGui::IsItemActive())
+            {
+                UpdateWindowPos(window, io);
+            }
+
+            if (!ImGui::IsMouseReleased(ImGuiMouseButton_Left) && ImGui::IsItemActive())
+            {
+                UpdateWindowPos(window, io);
+            }
+
+
+            if (ImGui::BeginMenu("File")) {
+                if (ImGui::MenuItem("Open another folder")) {
+                    imageWindow.ChangeFolder();
+                }
+                ImGui::EndMenu();
+            }
+            if (ImGui::BeginMenu("View")) {
+                if (ImGui::MenuItem("Image viewport")) {
+                    showImageViewport = true;
+                }
+                if (ImGui::MenuItem("Tag Editor")) {
+                    // Handle Button 1 click
+                }
+                ImGui::EndMenu();
+            }
+            ImGui::EndMainMenuBar();
+        }
+
         ImGui::Render();
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);

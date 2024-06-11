@@ -11,9 +11,10 @@
 
 class ImageViewer {
 public:
-    ImageViewer(std::string_view folderPath);
+    ImageViewer(std::string_view folderPath, bool &windowVisible);
     void Update();
     void Render();
+    void ChangeFolder();
 
 private:
     std::vector<std::string> imageFiles;
@@ -23,6 +24,7 @@ private:
     int currentImageHeight;
     bool rightArrowHeld;
     bool leftArrowHeld;
+    bool *windowVisible;
 };
 
 #endif

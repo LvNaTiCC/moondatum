@@ -19,8 +19,8 @@ void getAllImageFiles(const std::string_view folderPath, std::vector<std::string
     }
 }
 
-ImageViewer::ImageViewer(const std::string_view folderPath)
-    : currentFolderPosition{0}, currentImageTexture{0}, currentImageWidth{0}, currentImageHeight{0}, rightArrowHeld{false}, leftArrowHeld{false} {
+ImageViewer::ImageViewer(const std::string_view folderPath, bool &windowVisible)
+    : currentFolderPosition{0}, currentImageTexture{0}, currentImageWidth{0}, currentImageHeight{0}, rightArrowHeld{false}, leftArrowHeld{false}, windowVisible { &windowVisible } {
         getAllImageFiles(folderPath, imageFiles);
 
         if (!imageFiles.empty()) {
@@ -55,16 +55,9 @@ void ImageViewer::Update() {
     }
 }
 
-void ImageViewer::Render() {
-    ImGui::Begin("Image Viewer", nullptr);
-
-    ImGui::Text("Image: %s", !imageFiles.empty() ? imageFiles[currentFolderPosition].c_str() : "No Image");
-    ImGui::Text("Dimensions: %d x %d", currentImageWidth, currentImageHeight);
-
-    if (ImGui::Button("Change Image Folder")) {
+void ImageViewer::ChangeFolder() {
         nfdchar_t *outPath = NULL;
         nfdresult_t result = NFD_PickFolder(NULL, &outPath);
-
         if (result == NFD_OKAY) {
             getAllImageFiles(outPath, imageFiles);
             currentFolderPosition = 0;
@@ -75,12 +68,10 @@ void ImageViewer::Render() {
         } else {
             printf("Error: %s\n", NFD_GetError());
         }
-    }
+}
 
-    // Add some space between the text/buttons and the image
-    ImGui::Spacing();
-    ImGui::Spacing();
-
+void ImageViewer::Render() {
+    ImGui::Begin("Image View", windowVisible);
     if (!imageFiles.empty()) {
         float aspect_ratio = static_cast<float>(currentImageWidth) / static_cast<float>(currentImageHeight);
         ImVec2 windowSize = ImGui::GetContentRegionAvail();
@@ -119,6 +110,9 @@ void ImageViewer::Render() {
 
         ImGui::EndChild();
     }
+
+    ImGui::Text("Image: %s", !imageFiles.empty() ? imageFiles[currentFolderPosition].c_str() : "No Image");
+    ImGui::Text("Dimensions: %d x %d", currentImageWidth, currentImageHeight);
 
     ImGui::End();
 }
