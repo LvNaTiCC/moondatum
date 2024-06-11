@@ -15,12 +15,10 @@
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
 
-#include <nfd.h>
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
 #include <chrono>
 #include <thread>
+
+#include "ImageViewer.h"
 
 namespace fs = std::filesystem;
 
@@ -103,14 +101,8 @@ int main(int, char**)
 
     
     // Main loop
-    int my_image_width = 0;
-    int my_image_height = 0;
-    GLuint my_image_texture = 0;
-    size_t currentIndex = 0;
     std::string folderPath = "E:/datadump/ml_datasets/sd/v1v404/cumulative";
-    std::vector<std::string> pngFiles = GetAllPngFiles(folderPath);
-    bool ret = LoadTextureFromFile(pngFiles[currentIndex].c_str(), &my_image_texture, &my_image_width, &my_image_height);
-    IM_ASSERT(ret);
+    ImageViewer imageWindow(folderPath);
     while (!glfwWindowShouldClose(window))
     {
         auto frameStart = std::chrono::high_resolution_clock::now();
@@ -119,80 +111,14 @@ int main(int, char**)
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
-        ImGuiIO& io = ImGui::GetIO();
-        if (io.KeysDown[ImGuiKey_RightArrow]) {
-            if (!next_image_lock) {
-                currentIndex = (currentIndex + 1) % pngFiles.size();
-                ret = LoadTextureFromFile(pngFiles[currentIndex].c_str(), &my_image_texture, &my_image_width, &my_image_height);
-                next_image_lock = true;
-            }
-        }
-        else {
-            next_image_lock = false;
-        }
-        if (io.KeysDown[ImGuiKey_LeftArrow]) {
-            if (!prev_image_lock) {
-                currentIndex = (currentIndex - 1) % pngFiles.size();
-                ret = LoadTextureFromFile(pngFiles[currentIndex].c_str(), &my_image_texture, &my_image_width, &my_image_height);
-                prev_image_lock = true;
-            }
-        }
-        else {
-            prev_image_lock = false;
-        }
-
 
         #if 1
             bool show_demo_window = true;
             ImGui::ShowDemoWindow(&show_demo_window);
         #endif
 
-        ImGui::Begin("OpenGL Texture Text", nullptr);
-        if (ImGui::Button("Change Image Folder"))
-        {
-            nfdchar_t *outPath = NULL;
-            nfdresult_t result = NFD_PickFolder( NULL, &outPath );
-                
-            if ( result == NFD_OKAY ) {
-                puts("Success!");
-                std::string folderPath = outPath;
-                pngFiles = GetAllPngFiles(folderPath);
-                currentIndex = 0;
-                ret = LoadTextureFromFile(pngFiles[currentIndex].c_str(), &my_image_texture, &my_image_width, &my_image_height);
-                IM_ASSERT(ret);
-                puts(outPath);
-                free(outPath);
-
-            }
-            else if ( result == NFD_CANCEL ) {
-                puts("User pressed cancel.");
-            }
-            else {
-                printf("Error: %s\n", NFD_GetError() );
-            }
-        }
-        float aspect_ratio = float(my_image_width)/float(my_image_height);
-
-
-        ImVec2 windowSize = ImGui::GetWindowSize();
-        ImVec2 imageSize;
-        if (windowSize.x / aspect_ratio <= windowSize.y)
-        {
-            imageSize.x = windowSize.x;
-            imageSize.y = windowSize.x / aspect_ratio;
-        } else {
-            imageSize.x = windowSize.y * aspect_ratio;
-            imageSize.y = windowSize.y;
-        }
-        imageSize.x = imageSize.x * 0.9f;
-        imageSize.y = imageSize.y * 0.9f;
-        ImVec2 position;
-        position.x = (windowSize.x - imageSize.x) / 2.0f;
-        position.y = (windowSize.y - imageSize.y) / 2.0f;
-        ImGui::SetCursorPos(position);
-        ImGui::Image((void*)(intptr_t)my_image_texture, imageSize);
-        ImGui::Text("Dimensions: %d x %d", my_image_width, my_image_height);
-        ImGui::End();
+        imageWindow.Update();
+        imageWindow.Render();
 
         // Rendering
         ImGui::Render();
@@ -236,39 +162,4 @@ int main(int, char**)
     return 0;
 }
 
-// Simple helper function to load an image into a OpenGL texture with common settings
-bool LoadTextureFromFile(const char* filename, GLuint* out_texture, int* out_width, int* out_height)
-{
-    // Load from file
-    int image_width = 0;
-    int image_height = 0;
-    unsigned char* image_data = stbi_load(filename, &image_width, &image_height, NULL, 4);
-    if (image_data == NULL)
-        return false;
 
-    // Create an OpenGL texture identifier
-    GLuint image_texture;
-    glGenTextures(1, &image_texture);
-    glBindTexture(GL_TEXTURE_2D, image_texture);
-
-    // Upload pixels into texture
-#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-#endif
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
-
-    // Generate mipmaps
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    // Setup filtering parameters for display
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    stbi_image_free(image_data);
-
-    *out_texture = image_texture;
-    *out_width = image_width;
-    *out_height = image_height;
-
-    return true;
-}
