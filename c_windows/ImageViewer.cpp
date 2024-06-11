@@ -94,6 +94,9 @@ void ImageViewer::Render() {
             imageSize.y = windowSize.y;
         }
 
+        imageSize.x = imageSize.x * 0.9f;
+        imageSize.y = imageSize.y * 0.9f;
+
         // Calculate the frame size and position
         float framePadding = 10.0f;
         ImVec2 frameSize = {imageSize.x + framePadding * 2, imageSize.y + framePadding * 2};
@@ -113,6 +116,7 @@ void ImageViewer::Render() {
 
         // Render the image
         ImGui::Image((void*)(intptr_t)currentImageTexture, imageSize);
+
         ImGui::EndChild();
     }
 
