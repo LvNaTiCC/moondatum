@@ -7,8 +7,6 @@
 #include "GLFW/glfw3.h"
 #include <vector>
 
-//namespace fs = std::filesystem;
-
 class ImageViewer {
 public:
     ImageViewer(std::string_view folderPath, bool &windowVisible);

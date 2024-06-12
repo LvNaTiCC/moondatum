@@ -19,7 +19,7 @@ endif
 # #############################################
 
 RESCOMP = windres
-INCLUDES += -Iexternal -Isrc -Iexternal/imgui/backends -Iexternal/imgui -Iexternal/stb -Iexternal/nativefiledialog/src/include -Iwindows -Iutility
+INCLUDES += -Iexternal -Isrc -Iexternal/imgui/backends -Iexternal/imgui -Iexternal/stb -Iexternal/glfw/include -Iexternal/nativefiledialog/src/include -Iwindows -Iutility
 FORCE_INCLUDE +=
 ALL_CPPFLAGS += $(CPPFLAGS) -MD -MP $(DEFINES) $(INCLUDES)
 ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
@@ -38,20 +38,20 @@ endef
 ifeq ($(config),debug)
 TARGETDIR = bin/Debug
 TARGET = $(TARGETDIR)/MoonDatum.exe
-OBJDIR = obj/Debug
+OBJDIR = obj/Debug/MoonDatum
 DEFINES += -DDEBUG
 ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -g
 ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -g
-ALL_LDFLAGS += $(LDFLAGS) -Lexternal/GLFW/lib -Lexternal/nativefiledialog/build/lib/Release/x64 -mwindows
+ALL_LDFLAGS += $(LDFLAGS) -Lexternal/glfw/lib -Lexternal/nativefiledialog/build/lib/Release/x64 -mwindows
 
 else ifeq ($(config),release)
 TARGETDIR = bin/Release
 TARGET = $(TARGETDIR)/MoonDatum.exe
-OBJDIR = obj/Release
+OBJDIR = obj/Release/MoonDatum
 DEFINES += -DNDEBUG
 ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -O2
 ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -O2
-ALL_LDFLAGS += $(LDFLAGS) -Lexternal/GLFW/lib -Lexternal/nativefiledialog/build/lib/Release/x64 -mwindows -s
+ALL_LDFLAGS += $(LDFLAGS) -Lexternal/glfw/lib -Lexternal/nativefiledialog/build/lib/Release/x64 -mwindows -s
 
 endif
 

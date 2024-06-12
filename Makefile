@@ -9,20 +9,28 @@ ifndef verbose
 endif
 
 ifeq ($(config),debug)
+  GLFW_config = debug
   MoonDatum_config = debug
 
 else ifeq ($(config),release)
+  GLFW_config = release
   MoonDatum_config = release
 
 else
   $(error "invalid configuration $(config)")
 endif
 
-PROJECTS := MoonDatum
+PROJECTS := GLFW MoonDatum
 
 .PHONY: all clean help $(PROJECTS) 
 
 all: $(PROJECTS)
+
+GLFW:
+ifneq (,$(GLFW_config))
+	@echo "==== Building GLFW ($(GLFW_config)) ===="
+	@${MAKE} --no-print-directory -C . -f GLFW.make config=$(GLFW_config)
+endif
 
 MoonDatum:
 ifneq (,$(MoonDatum_config))
@@ -31,6 +39,7 @@ ifneq (,$(MoonDatum_config))
 endif
 
 clean:
+	@${MAKE} --no-print-directory -C . -f GLFW.make clean
 	@${MAKE} --no-print-directory -C . -f MoonDatum.make clean
 
 help:
@@ -43,6 +52,7 @@ help:
 	@echo "TARGETS:"
 	@echo "   all (default)"
 	@echo "   clean"
+	@echo "   GLFW"
 	@echo "   MoonDatum"
 	@echo ""
 	@echo "For more information, see https://github.com/premake/premake-core/wiki"
