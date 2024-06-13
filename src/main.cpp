@@ -34,35 +34,35 @@ static void glfw_error_callback(int error, const char* description)
 
 // Dragging by the main menu callback
 // Allows to drag the window, descpite not having a top bar.
-void UpdateWindowPos(GLFWwindow* window, ImGuiIO& io)
-{
-    static bool dragging = false;
-    static ImVec2 dragOffset;
+// void UpdateWindowPos(GLFWwindow* window, ImGuiIO& io)
+// {
+//     static bool dragging = false;
+//     static ImVec2 dragOffset;
 
-    if (ImGui::IsMouseDragging(ImGuiMouseButton_Left))
-    {
-        ImVec2 mousePos = ImGui::GetMousePos();
-        if (!dragging)
-        {
-            int windowX, windowY;
-            glfwGetWindowPos(window, &windowX, &windowY);
+//     if (ImGui::IsMouseDragging(ImGuiMouseButton_Left))
+//     {
+//         ImVec2 mousePos = ImGui::GetMousePos();
+//         if (!dragging)
+//         {
+//             int windowX, windowY;
+//             glfwGetWindowPos(window, &windowX, &windowY);
 
-            dragOffset.x = mousePos.x - windowX;
-            dragOffset.y = mousePos.y - windowY;
-            std::cout << dragOffset.x;
-            std::cout << dragOffset.y;
-            dragging = true;
-        }
+//             dragOffset.x = mousePos.x - windowX;
+//             dragOffset.y = mousePos.y - windowY;
+//             std::cout << dragOffset.x;
+//             std::cout << dragOffset.y;
+//             dragging = true;
+//         }
 
-        int newX = static_cast<int>(mousePos.x - dragOffset.x);
-        int newY = static_cast<int>(mousePos.y - dragOffset.y);
-        glfwSetWindowPos(window, newX, newY);
-    }
-    else
-    {
-        dragging = false;
-    }
-}
+//         int newX = static_cast<int>(mousePos.x - dragOffset.x);
+//         int newY = static_cast<int>(mousePos.y - dragOffset.y);
+//         glfwSetWindowPos(window, newX, newY);
+//     }
+//     else
+//     {
+//         dragging = false;
+//     }
+// }
 
 
 int main(int, char**)
@@ -75,8 +75,7 @@ int main(int, char**)
     const char* glsl_version = "#version 130";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE); // Make a borderless window
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+    //glfwWindowHint(GLFW_DECORATED, GLFW_FALSE); // Make a borderless window
 
     GLFWwindow* window = glfwCreateWindow(1280, 720, "Moondatum", nullptr, nullptr);
     if (window == nullptr)
@@ -151,20 +150,20 @@ int main(int, char**)
 
         // Main Menu / Top Bar
         if (ImGui::BeginMainMenuBar()) {
-            if (ImGui::IsMouseDragging(ImGuiMouseButton_Left) && ImGui::IsItemActive())
-            {
-                // Drag the main window if user drags along main menu.
-                UpdateWindowPos(window, io);
-            }
+            // if (ImGui::IsMouseDragging(ImGuiMouseButton_Left) && ImGui::IsItemActive())
+            // {
+            //     // Drag the main window if user drags along main menu.
+            //     UpdateWindowPos(window, io);
+            // }
 
-            if (!ImGui::IsMouseReleased(ImGuiMouseButton_Left) && ImGui::IsItemActive())
-            {
-                // Reset the dragging state inside UpdateWindowPos
-                // This is called every frame in which user hovering their mouse
-                // over the main menu.
-                // #TODO Come up with less expensive idea
-                UpdateWindowPos(window, io);
-            }
+            // if (!ImGui::IsMouseReleased(ImGuiMouseButton_Left) && ImGui::IsItemActive())
+            // {
+            //     // Reset the dragging state inside UpdateWindowPos
+            //     // This is called every frame in which user hovering their mouse
+            //     // over the main menu.
+            //     // #TODO Come up with less expensive idea
+            //     UpdateWindowPos(window, io);
+            // }
 
 
             if (ImGui::BeginMenu("File")) {
