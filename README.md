@@ -9,7 +9,7 @@ git clone https://github.com/LvNaTiCC/moondatum
 cd moondatum
 # Clone dependencies
 git submodule update --init --recursive
-mingfw32-make config=release
+mingw32-make config=release
 ```
 
 ## Linux
