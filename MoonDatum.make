@@ -28,7 +28,7 @@ LDDEPS +=
 LINKCMD = $(CXX) -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)
 define PREBUILDCMDS
 	@echo Running prebuild commands
-	cd external/nativefiledialog/build/gmake_windows && CC=gcc mingw32-make config=release_x64
+	cd external/nativefiledialog/build/gmake_windows && mingw32-make config=release_x64
 endef
 define PRELINKCMDS
 endef

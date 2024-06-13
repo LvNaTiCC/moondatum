@@ -113,7 +113,7 @@ project "MoonDatum"
         links { "nfd", "glfw3", "gdi32", "opengl32", "ole32", "uuid"}
         toolset "gcc"
         prebuildcommands {
-            "cd external/nativefiledialog/build/gmake_windows && CC=gcc mingw32-make config=release_x64"
+            "cd external/nativefiledialog/build/gmake_windows && mingw32-make config=release_x64"
         }
 
     filter "system:linux"
