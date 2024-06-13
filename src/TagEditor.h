@@ -12,7 +12,7 @@ public:
     TagEditorWindow(ImFont* default_font, ImFont* editor_font, bool &window_visible);
     void Update();
     void Render();
-    void LoadFile();
+    bool LoadFile(std::string file_path);
 
 private:
     std::string tag_string;
@@ -21,6 +21,7 @@ private:
     ImFont* default_font;
     bool unsaved_changes;
     bool *window_visible;
+    char tag_string_buf[1024 * 8];
 };
 
 #endif

@@ -78,7 +78,6 @@ project "MoonDatum"
         "external/stb",
         "external/glfw/include",
         "external/nativefiledialog/src/include",
-        "windows",
         "utility",
     }
 
@@ -96,9 +95,7 @@ project "MoonDatum"
         "external/imgui/backends/imgui_impl_glfw.cpp",
         "external/stb/stb_image.h",
         "external/nativefiledialog/src/include/nfd.h",
-        "windows/*.cpp",
-        "windows/*.h",
-        "src/main.cpp",
+        "src/*.cpp",
         "utility/utility.cpp"
     }
 
