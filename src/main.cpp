@@ -78,7 +78,7 @@ int main(int, char**)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     //glfwWindowHint(GLFW_DECORATED, GLFW_FALSE); // Make a borderless window
 
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "Moondatum", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(700, 900, "Moondatum", nullptr, nullptr);
     if (window == nullptr)
         return 1;
     glfwMakeContextCurrent(window);
