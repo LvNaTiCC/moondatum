@@ -66,6 +66,7 @@ GENERATED :=
 OBJECTS :=
 
 GENERATED += $(OBJDIR)/ImageViewer.o
+GENERATED += $(OBJDIR)/TagEditor.o
 GENERATED += $(OBJDIR)/glad.o
 GENERATED += $(OBJDIR)/imgui.o
 GENERATED += $(OBJDIR)/imgui_demo.o
@@ -77,6 +78,7 @@ GENERATED += $(OBJDIR)/imgui_widgets.o
 GENERATED += $(OBJDIR)/main.o
 GENERATED += $(OBJDIR)/utility.o
 OBJECTS += $(OBJDIR)/ImageViewer.o
+OBJECTS += $(OBJDIR)/TagEditor.o
 OBJECTS += $(OBJDIR)/glad.o
 OBJECTS += $(OBJDIR)/imgui.o
 OBJECTS += $(OBJDIR)/imgui_demo.o
@@ -181,6 +183,9 @@ $(OBJDIR)/utility.o: utility/utility.cpp
 	@echo "$(notdir $<)"
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/ImageViewer.o: windows/ImageViewer.cpp
+	@echo "$(notdir $<)"
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/TagEditor.o: windows/TagEditor.cpp
 	@echo "$(notdir $<)"
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 

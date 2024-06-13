@@ -1,6 +1,7 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h" // Will drag system OpenGL headers
 #include "ImageViewer.h"
+#include "TagEditor.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -118,12 +119,14 @@ int main(int, char**)
     // Window/Widget States
     static bool show_image_viewport = true;
     static bool show_demo_window = true;
+    static bool show_tag_editor = true;
 
 
     // Default folder
     // #TODO Create the "no folder opened" state along with placeholder image
     std::string folderPath = "E:/datadump/ml_datasets/sd/v1v404/cumulative";
     ImageViewer imageWindow(folderPath, show_image_viewport);
+    TagEditorWindow tagEditorWindow(show_tag_editor);
     while (!glfwWindowShouldClose(window))
     {
         auto frameStart = std::chrono::high_resolution_clock::now();
@@ -145,6 +148,11 @@ int main(int, char**)
         if (show_image_viewport) {
             imageWindow.Update();
             imageWindow.Render();
+        }
+
+        if (show_tag_editor) {
+            tagEditorWindow.Update();
+            tagEditorWindow.Render();
         }
     
 
