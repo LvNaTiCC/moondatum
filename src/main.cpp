@@ -100,11 +100,21 @@ int main(int, char**)
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
 
+    ImFont* font_default = io.Fonts->AddFontFromFileTTF("fonts/Roboto-Regular.ttf", 18.0f);
+    ImFont* font_medium = io.Fonts->AddFontFromFileTTF("fonts/Roboto-Regular.ttf", 22.0f);
+    ImFont* font_large = io.Fonts->AddFontFromFileTTF("fonts/Roboto-Regular.ttf", 26.0f);
+
+
     //  Dear ImGui Style Configuration
     ImGui::StyleColorsDark();
     ImGuiStyle& style = ImGui::GetStyle();
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+
+    // Load Fonts
+
+    
+
 
     // Platform/Renderer ImGui backends Configuration
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -126,7 +136,7 @@ int main(int, char**)
     // #TODO Create the "no folder opened" state along with placeholder image
     std::string folderPath = "E:/datadump/ml_datasets/sd/v1v404/cumulative";
     ImageViewer imageWindow(folderPath, show_image_viewport);
-    TagEditorWindow tagEditorWindow(show_tag_editor);
+    TagEditorWindow tagEditorWindow(font_default, font_medium, show_tag_editor);
     while (!glfwWindowShouldClose(window))
     {
         auto frameStart = std::chrono::high_resolution_clock::now();
@@ -185,7 +195,7 @@ int main(int, char**)
                     show_image_viewport = true;
                 }
                 if (ImGui::MenuItem("Tag Editor")) {
-                    // #Placeholder
+                    show_tag_editor = true;
                 }
                 ImGui::EndMenu();
             }
