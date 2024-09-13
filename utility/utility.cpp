@@ -4,6 +4,19 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
+// Rewrite to traverse directory
+// Preferably, to return an iterator to all images
+
+// void getAllImageFiles(const std::string_view folderPath, std::vector<std::string>& imageFiles) {
+//     imageFiles.clear();
+//     for (const auto& entry : fs::directory_iterator(folderPath)) {
+//         if (entry.is_regular_file() && (entry.path().extension() == ".png" || entry.path().extension() == ".jpeg" || entry.path().extension() == ".jpg")) {
+//             //std::cout << "ADDED " << entry.path().string() << "\n"; debug print
+//             imageFiles.push_back(entry.path().string());
+//         }
+//     }
+// }
+
 // Simple helper function to load an image into a OpenGL texture with common settings
 bool LoadTextureFromFile(const char* filename, GLuint* out_texture, int* out_width, int* out_height)
 {

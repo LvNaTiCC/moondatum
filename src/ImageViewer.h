@@ -4,25 +4,48 @@
 #include <filesystem>
 #include <string>
 #include <string_view>
-#include "GLFW/glfw3.h"
 #include <vector>
+#include "GLFW/glfw3.h"
+#include "utility.h"
+
+
+
+// Class deisgned to contain data crucial for proper image rendering
+class ImageData
+{
+private:
+    GLuint m_texture {};
+    int m_height {};
+    int m_width {};
+public:
+    GLuint getTexture () const { return m_texture; }
+    int getHeight     () const { return m_height;   }
+    int getWidth      () const { return m_width;    }
+    ImageData()
+    : m_texture {}, m_width {}, m_height {}
+    {}
+    ImageData(const std::string& path)
+    : m_texture {}, m_width {}, m_height {}
+    {
+        LoadTextureFromFile(path.c_str(), &m_texture, &m_width, &m_height);
+    }
+};
 
 class ImageViewer {
+private:
+    ImageData m_imdata {};
+    bool *m_visible {};
 public:
-    ImageViewer(std::string_view folderPath, bool &windowVisible);
+    ImageViewer(bool* window_visible)
+    : m_visible { window_visible }
+    {
+    }
+    void setImage(const std::string& path)
+    {
+        m_imdata = ImageData(path);
+    }
     void Update();
     void Render();
-    void ChangeFolder();
-
-private:
-    std::vector<std::string> imageFiles;
-    int currentFolderPosition;
-    GLuint currentImageTexture;
-    int currentImageWidth;
-    int currentImageHeight;
-    bool rightArrowHeld;
-    bool leftArrowHeld;
-    bool *windowVisible;
 };
 
 #endif
