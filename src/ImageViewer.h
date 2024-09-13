@@ -9,7 +9,6 @@
 #include "utility.h"
 
 
-
 // Class deisgned to contain data crucial for proper image rendering
 class ImageData
 {
