@@ -7,7 +7,9 @@
 // Rewrite to traverse directory
 // Preferably, to return an iterator to all images
 
+
 // void getAllImageFiles(const std::string_view folderPath, std::vector<std::string>& imageFiles) {
+//     namespace fs = std::filesystem;
 //     imageFiles.clear();
 //     for (const auto& entry : fs::directory_iterator(folderPath)) {
 //         if (entry.is_regular_file() && (entry.path().extension() == ".png" || entry.path().extension() == ".jpeg" || entry.path().extension() == ".jpg")) {
