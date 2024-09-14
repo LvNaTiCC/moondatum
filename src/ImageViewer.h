@@ -13,9 +13,16 @@
 class ImageData
 {
 private:
-    GLuint m_texture {};
+    GLuint m_texture {}; // ImageData is responsible for proper initialization and disposal of it's texture
     int m_height {};
     int m_width {};
+    void clearData ()
+    {
+        if (m_texture)
+            glDeleteTextures(1, &m_texture);
+        m_height = 0;
+        m_width = 0;
+    }
 public:
     GLuint getTexture () const { return m_texture; }
     int getHeight     () const { return m_height;   }
@@ -23,11 +30,25 @@ public:
     ImageData()
     : m_texture {}, m_width {}, m_height {}
     {}
+    ~ImageData()
+    {
+        // Properly dispose of GL texture
+        clearData();
+    }
     ImageData(const std::string& path)
     : m_texture {}, m_width {}, m_height {}
     {
+        updateTexture(path);
+    }
+    void updateTexture (const std::string& path)
+    {
+        clearData();
         LoadTextureFromFile(path.c_str(), &m_texture, &m_width, &m_height);
     }
+    // Prevent copy, because ImageData is responsible for disposal of GL texture
+    // GLuint destructor does is responsible for disposing of the texture
+    ImageData& operator=(const ImageData&) = delete;
+    ImageData(const ImageData&) = delete;
 };
 
 class ImageViewer {
@@ -41,7 +62,8 @@ public:
     }
     void setImage(const std::string& path)
     {
-        m_imdata = ImageData(path);
+        
+        m_imdata.updateTexture(path);
     }
     void Update();
     void Render();
