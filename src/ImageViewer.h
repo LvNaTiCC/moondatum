@@ -62,7 +62,6 @@ public:
     }
     void setImage(const std::string& path)
     {
-        
         m_imdata.updateTexture(path);
     }
     void Update();
